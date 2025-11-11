@@ -21,13 +21,33 @@ def setup_plotstyle(ax: plt.Axes) -> None:
     ax.tick_params(axis='y', which='both', left=False, right=False)
 
 def wrap_labels(ax: plt.Axes, width: int|float = 12) -> None:
-    """Wrap y-axis tick labels to a given character width."""
+    """Wrap y-axis tick labels to a given character width.
+    
+    Parameters
+    ----------
+    ax : plt.Axes
+        The plot axes containing the bars.
+    width : int|float
+        The maximum character width for wrapping labels.
+        
+    Returns: None
+    """
     labels = [t.get_text() for t in ax.get_yticklabels()]
     wrapped_labels = [textwrap.fill(label, width) for label in labels]
     ax.set_yticklabels(wrapped_labels)
 
 def setup_dt(ax: plt.Axes, dt: int) -> None:
-    """Display the current dt (frame label) on the chart."""
+    """Display the current dt (frame label) on the chart.
+    
+    Parameters
+    ----------
+    ax : plt.Axes
+        The plot axes containing the bars.
+    dt : int
+        The current frame label (e.g., year).
+        
+    Returns: None
+    """
     ax.text(0.9, 0.05, str(dt), transform=ax.transAxes,
             ha='center', color="#0B0101", fontsize=15)
 
@@ -124,7 +144,7 @@ def save_animation(df: pd.DataFrame, frames: list | np.ndarray, icons: dict) -> 
             x='x', y='label', data=top_items,
             hue='label', legend=False, palette='viridis', ax=ax
         )
-        wrap_labels(ax, width=10)
+        wrap_labels(ax, width=18)
         for label in ax.get_yticklabels():
             label.set_ha('right')
             label.set_x(-0.014)
@@ -143,7 +163,21 @@ def save_animation(df: pd.DataFrame, frames: list | np.ndarray, icons: dict) -> 
 
 
 def show_animation(df: pd.DataFrame, frames: list | np.ndarray, icons: dict) -> None:
-    """Display an animated time series bar chart with optional icons."""
+    """Display an animated time series bar chart with optional icons.
+    Parameters:
+    ----------
+    df : pd.DataFrame
+        A DataFrame containing at least the following columns:
+        - 'dt': used to determine frames.
+        - 'label': categorical variable (e.g., country names).
+        - 'x': numeric variable to visualize.
+    frames : list | np.ndarray
+        A list or array of frame identifiers (e.g., years).
+    icons : dict
+        A dictionary mapping label → PIL Image for icons.
+    
+    Returns: None
+    """
     fig, ax = plt.subplots(figsize=(12, 6))
 
     def animate(frame):
@@ -154,7 +188,7 @@ def show_animation(df: pd.DataFrame, frames: list | np.ndarray, icons: dict) -> 
         top_items = frame_data.nlargest(10, 'x')
         sns.barplot(
             x='x', y='label', data=top_items,
-            hue='label', legend=False, palette='viridis', ax=ax
+            hue='label', legend=False, palette='rocket', ax=ax
         )
         wrap_labels(ax, width=18)
         for label in ax.get_yticklabels():
