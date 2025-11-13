@@ -53,8 +53,16 @@ def add_icons(ax: plt.Axes, icons: dict) -> None:
 
     for y_pos, label in zip(ytick_positions, ytick_labels):
         if label in icons:
-            img = icons[label]
-            imagebox = OffsetImage(img, zoom=0.45)
+            img = icons[label].convert("RGBA")
+
+            # Adjusting zoom manually: 
+                # imagebox = OffsetImage(img, zoom=0.45)
+
+            # Adjust zoom dynamically:
+            fig = ax.get_figure()
+            dpi_scale = fig.dpi / 100.0  # Normalize to standard 100 dpi
+            imagebox = OffsetImage(img, zoom=0.07 / dpi_scale) # set zoom=0.6 if "__name__" == "__main__"
+
             ab = AnnotationBbox(
                 imagebox,
                 xy=(0, y_pos),
@@ -158,7 +166,8 @@ def setup_dt(ax: plt.Axes, dt: int) -> None:
 
 def save_animation(df: pd.DataFrame, 
     frames: list | np.ndarray | pd.Series, 
-    icons: dict, 
+    icons: dict,
+    output_path: str = os.path.dirname(os.path.abspath(__file__)),
     title: str = None, 
     width: int|float = 12, 
     height: int|float = 6,
@@ -198,7 +207,7 @@ def save_animation(df: pd.DataFrame,
 
     anim = FuncAnimation(fig, animate, frames=frames, interval=200)
     print("Saving animation as mp4...")
-    anim.save("animation.mp4", writer="ffmpeg", fps=fps)
+    anim.save(os.path.join(output_path, "animation.mp4"), writer="ffmpeg", fps=fps)
     print("Animation saved as animation.mp4")
 
 def show_animation(df: pd.DataFrame, 
@@ -238,11 +247,11 @@ def show_animation(df: pd.DataFrame,
     anim = FuncAnimation(fig, animate, frames=frames, interval= fps)
     plt.show()
 
-
 if __name__ == "__main__":
 
     data_path = './data/clean-formatted-data.csv'
     icons_path = './icons'
+    output = os.path.dirname(os.path.abspath(__file__))
     title = "Top 10 Populations in the World Prediction"
     fps = 12
     width = 12
@@ -256,7 +265,7 @@ if __name__ == "__main__":
     icons = load_icons(df, icons_path, label_col='label')
 
     # Start saving in background 
-    p = Process(target=save_animation, args=(df, frames, icons, title, width, height, fps))
+    p = Process(target=save_animation, args=(df, frames, icons, output, title, width, height, fps))
     p.start()
     # Showing animation in real time
     show_animation(df, frames, icons, title = title, width = width, height = height, fps = fps)

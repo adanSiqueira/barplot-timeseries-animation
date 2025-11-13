@@ -1,4 +1,6 @@
 /venv
+/downloads
+/streamlit_tests
 *.env
 *.pyc
 streamlit_app.py
